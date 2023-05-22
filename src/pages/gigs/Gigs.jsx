@@ -1,15 +1,45 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import "./Gigs.scss";
-import { gigs } from "../../data";
 import GigCard from '../../components/gigcard/GigCard'
+import { useLocation } from "react-router";
+
 const Gigs = () => {
   const [open, setopen] = useState(false);
   const [value, setvalue] = useState("sales");
+  const minRef=useRef();
+  const maxRef=useRef();
+  const {search}=useLocation()
 
+
+   //react query 
+
+   const { isPending, error, data ,refetch} = useQuery({
+    queryKey: ['gigs'],
+    queryFn: () =>
+      fetch(`http://localhost:8000/api/gigs?${search}&min=${minRef.current.value}&max=${maxRef.current.value}&sort=${value}`).then(
+        (res) => res.json(),
+      ),
+   })
+
+ 
+
+   console.log(data);
+   
   const resort = (values) => {
     setvalue(values);
     setopen(false);
   };
+
+  useEffect(() => {
+    refetch();
+  }, [value]);
+
+  
+  const apply = () => {
+    refetch();
+  };
+  
   return (
     <div className="gigs">
       <div className="container">
@@ -22,9 +52,9 @@ const Gigs = () => {
         <div className="menu">
           <div className="left">
             <span>Budget</span>
-            <input type="text" placeholder="min" />
-            <input type="text" placeholder="max" />
-            <button>Apply</button>
+            <input ref={minRef} type="number" placeholder="min" />
+            <input ref={maxRef} type="number" placeholder="max" />
+            <button onClick={apply}>Apply</button>
           </div>
           <div className="right">
             <span className="sortBy">sortBy</span>
@@ -41,8 +71,8 @@ const Gigs = () => {
           </div>
         </div>
         <div className="cards">
-          {gigs.map(gig=>(
-            <GigCard item={gig} key={gig.id}/>
+          {isPending?"loading":error?"something went wrong":data.map(gig=>(
+            <GigCard item={gig} key={gig._id}/>
           ))}
         </div>
       </div>
