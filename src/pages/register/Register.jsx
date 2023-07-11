@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import upload from "../../utils/upload";
 import "./Register.scss";
-import newRequest from "../../utils/newRequest";
+import newRequest from "../../utils/newRequest.js";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 function Register() {
   const [file, setFile] = useState(null);
@@ -35,7 +34,7 @@ function Register() {
 
     const url = await upload(file);
     try {
-      await axios.post("http://localhost:8000/api/auth/register", {
+      await newRequest.post("/auth/register", {
         ...user,
         img: url,
       });

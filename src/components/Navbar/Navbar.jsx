@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Link,  useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./Navbar.scss";
-import newRequest from "../../utils/newRequest";
+import newRequest from "../../utils/newRequest.js";
 const Navbar = () => {
   const [active, setActive] = useState(false);
   const [open, setopen] = useState(false);
   let navigate= useNavigate();
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8000/api/auth/logout");
+      await newRequest.post("auth/logout");
       localStorage.setItem("currentUser", null);
       navigate("/");
     } catch (err) {
@@ -37,8 +36,6 @@ const Navbar = () => {
           <Link to="/" className="link">
             <span className="text">fiverr</span>
           </Link>
-          {/* this link doesn't work because we have to wrap our app in react router dom */}
-
           <span className="dot">.</span>
         </div>
         <div className="links">

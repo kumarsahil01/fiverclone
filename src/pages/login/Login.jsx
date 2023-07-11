@@ -1,27 +1,25 @@
 import React, { useState } from "react";
+import Cookies from "react-cookies";
 import "./Login.scss";
 import newRequest from "../../utils/newRequest.js";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-       const res=axios.post("http://localhost:8000/api/auth/login",{
-        username,password
-       },{withCredentials:true});
-      localStorage.setItem("currentUser",JSON.stringify((await res).data)) 
-      navigate('/')
+      const res = await newRequest.post("auth/login", { username, password });
+      const accessToken = res.data.accessToken;
+      Cookies.save("accessToken", accessToken);
+      localStorage.setItem("currentUser", JSON.stringify(res.data.info));
+      navigate("/");
     } catch (err) {
-     setError(err)
-     console.log(err)
+      setError(err);
     }
   };
 
@@ -44,7 +42,7 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <button type="submit">Login</button>
-        {error && error}
+        {error && error.message}
       </form>
     </div>
   );
